@@ -11,7 +11,7 @@ if __name__ == '__main__':
         resourceImported = True # resource is in Linux only
     except ImportError:
         pass
-
+    
     if argsLength >= 2:
         if sys.argv[1] == '-p': # needs length to be 4: the last 2 are the sequence and number of gaps to add
             if argsLength == 4:
@@ -20,10 +20,40 @@ if __name__ == '__main__':
                 print(usage(sys.argv[1]))
                 raise SystemExit
         
-        elif sys.argv[1] == '-f' and argsLength == 4:
+        elif sys.argv[1] == '-f' and argsLength >= 4:
+            callGraph = False
+            if argsLength == 5 and sys.argv[4] == '-graph':
+                callGraph = True
+                try:
+                    from pycallgraph import PyCallGraph
+                    from pycallgraph.output import GraphvizOutput
+                except ImportError:
+                    print("Please install pycallgraph if you want to generate the calls graph.")
+                    print("Run: sudo pip3 install pycallgraph")
+
+                if callGraph:
+                    print("A functions's calls graph will be generated and saved in the cwd.")
+                    graphviz = GraphvizOutput()
+                    l = sys.argv[3].split('\\')
+                    ll = sys.argv[3].split('/')
+                    if len(l) > len(ll):
+                        outputImg = l[-1]
+                    else:
+                        outputImg = ll[-1] 
+
+                    outputImg += "_" + sys.argv[2].split('-')[-1] + ""
+                    outputImg += ".png"
+                    graphviz.output_file = outputImg
+
             if sys.argv[2] == '-dist': # get data from file, and calculate distance using recursive algo
                 time_start = time.perf_counter()
-                print(dist_naif_from_file(sys.argv[3]))
+                
+                if callGraph:
+                    with PyCallGraph(output=graphviz):
+                        print(dist_naif_from_file(sys.argv[3]))
+                else:
+                    print(dist_naif_from_file(sys.argv[3]))
+
                 time_elapsed = (time.perf_counter() - time_start)
 
                 if resourceImported:
@@ -34,7 +64,13 @@ if __name__ == '__main__':
 
             elif sys.argv[2] == '-dist1': # get data from file, and calculate distance using iteratif algo
                 time_start = time.perf_counter()
-                print(dist_1_from_file(sys.argv[3]))
+                
+                if callGraph:
+                    with PyCallGraph(output=graphviz):
+                        print(dist_1_from_file(sys.argv[3]))
+                else:
+                    print(dist_1_from_file(sys.argv[3]))
+                
                 time_elapsed = (time.perf_counter() - time_start)
 
                 if resourceImported:
@@ -46,7 +82,13 @@ if __name__ == '__main__':
 
             elif sys.argv[2] == '-dyn': # get data from file -> calculate distance and an optimal alignment
                 time_start = time.perf_counter()
-                print(prog_dyn_from_file(sys.argv[3]))
+
+                if callGraph:
+                    with PyCallGraph(graphviz):
+                        print(prog_dyn_from_file(sys.argv[3]))
+                else:
+                    print(prog_dyn_from_file(sys.argv[3]))
+                
                 time_elapsed = (time.perf_counter() - time_start)
 
                 if resourceImported:

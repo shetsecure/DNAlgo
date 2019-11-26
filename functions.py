@@ -80,6 +80,7 @@ def generateAlignments(seq1, kGaps, seq2):
 
 ########################################### IMPLEMENTATIONS ###########################################
 
+
 def dist_naif_rec(x, y, i, j, c, dist):
     '''
         x et y deux mots,
@@ -109,12 +110,14 @@ def dist_naif_rec(x, y, i, j, c, dist):
             
     return dist
 
+
 def dist_naif(x, y):
     return dist_naif_rec(x, y, 0, 0, 0, sys.maxsize)
 
 def dist_naif_from_file(path):
     s = processFile(path)
     return dist_naif(s[0], s[1])
+
 
 def dist_1(x, y, wholeTable=False): # Question 12
     assert (isinstance(x, str) and isinstance(x, str))
@@ -148,6 +151,7 @@ def dist_1(x, y, wholeTable=False): # Question 12
 def dist_1_from_file(path):
     s = processFile(path)
     return dist_1(s[0], s[1])
+
 
 def sol_1(x, y, T): # question 16
     '''
