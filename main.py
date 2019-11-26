@@ -8,7 +8,7 @@ if __name__ == '__main__':
 
     try:
         import resource
-        resourceImported = True
+        resourceImported = True # resource is in Linux only
     except ImportError:
         pass
 
@@ -20,10 +20,8 @@ if __name__ == '__main__':
                 print(usage(sys.argv[1]))
                 raise SystemExit
         
-        # fix the ambigious shit here (switch -f condition to first)
-
-        elif sys.argv[1] == '-dist':
-            if argsLength == 4 and sys.argv[2] == '-f': # get data from file, and calculate distance
+        elif sys.argv[1] == '-f' and argsLength == 4:
+            if sys.argv[2] == '-dist': # get data from file, and calculate distance using recursive algo
                 time_start = time.perf_counter()
                 print(dist_naif_from_file(sys.argv[3]))
                 time_elapsed = (time.perf_counter() - time_start)
@@ -34,14 +32,7 @@ if __name__ == '__main__':
                 else:
                     print("Time taken: %5.1f secs" % (time_elapsed))
 
-            else:
-                try:
-                    print(dist_naif(sys.argv[2], sys.argv[3])) # calculate distance, data is provided through arguments
-                except IndexError:
-                    print('Maybe you want to calculate it providing the data from a file ? if so add -f option.')
-
-        elif sys.argv[1] == '-dist1':
-            if argsLength == 4 and sys.argv[2] == '-f': # get data from file, and calculate distance
+            elif sys.argv[2] == '-dist1': # get data from file, and calculate distance using iteratif algo
                 time_start = time.perf_counter()
                 print(dist_1_from_file(sys.argv[3]))
                 time_elapsed = (time.perf_counter() - time_start)
@@ -51,14 +42,9 @@ if __name__ == '__main__':
                     print("Time and memory used respectively : %5.1f secs %5.1f KBytes" % (time_elapsed,memKb))
                 else:
                     print("Time taken: %5.1f secs" % (time_elapsed))
-            else:
-                try:
-                    print(dist_1(sys.argv[2], sys.argv[3])) # calculate distance, data is provided through arguments
-                except IndexError:
-                    print('Maybe you want to calculate it providing the data from a file ? if so add -f option.')
-        
-        elif sys.argv[1] == '-dyn':
-            if argsLength == 4 and sys.argv[2] == '-f': # get data from file, and calculate distance
+
+
+            elif sys.argv[2] == '-dyn': # get data from file -> calculate distance and an optimal alignment
                 time_start = time.perf_counter()
                 print(prog_dyn_from_file(sys.argv[3]))
                 time_elapsed = (time.perf_counter() - time_start)
@@ -68,23 +54,67 @@ if __name__ == '__main__':
                     print("Time and memory used respectively : %5.1f secs %5.1f KBytes" % (time_elapsed,memKb))
                 else:
                     print("Time taken: %5.1f secs" % (time_elapsed))
-            else:
-                try: # fix this -> failed case -> py main.py -dyn ACTG CCG
-                    print(prog_dyn(sys.argv[2], sys.argv[3])) # calculate distance, data is provided through arguments
-                except IndexError:
-                    print('Maybe you want to calculate it providing the data from a file ? if so add -f option.')
+
 
         elif sys.argv[1] == '-align':
             if argsLength == 5:
-                if representsInt(sys.argv[2]):
+                allInts = True
+
+                for i in range(2,5):
+                    if not reprensentsInt(sys.argv[i]):
+                        allInts = False
+                        break
+
+                if allInts :
                     # if given 3 arguments as ints, generate 2 random sequence (1st and 3rd), the 2nd is the number of gaps to add
                     # to the 1st 
                     sys.argv[2] = int(sys.argv[2])
                     sys.argv[4] = int(sys.argv[4])
                     generateAlignments(getRandomSequence(sys.argv[2]), sys.argv[3], getRandomSequence(sys.argv[4]))
-                    #generateAlignments('abc', sys.argv[2], 'df')
                 else:
                     generateAlignments(sys.argv[2], sys.argv[3], sys.argv[4])
+
+        elif sys.argv[1] == '-dist': # calculate the distance using the recursive algo
+            if argsLength == 4:
+                time_start = time.perf_counter()
+                print(dist_naif(sys.argv[2], sys.argv[3]))
+                time_elapsed = (time.perf_counter() - time_start)
+
+                if resourceImported:
+                    memKb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0
+                    print("Time and memory used respectively : %5.1f secs %5.1f KBytes" % (time_elapsed,memKb))
+                else:
+                    print("Time taken: %5.1f secs" % (time_elapsed))
+            else:
+                print(usage(sys.argv[1]))
+
+        elif sys.argv[1] == '-dist1': # calculate distance using the iteratif algo
+            if argsLength == 4:
+                time_start = time.perf_counter()
+                print(dist_1(sys.argv[2], sys.argv[3]))
+                time_elapsed = (time.perf_counter() - time_start)
+
+                if resourceImported:
+                    memKb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0
+                    print("Time and memory used respectively : %5.1f secs %5.1f KBytes" % (time_elapsed,memKb))
+                else:
+                    print("Time taken: %5.1f secs" % (time_elapsed))
+            else:
+                print(usage(sys.argv[1]))
+
+        elif sys.argv[1] == '-dyn': # calculate distance and an optimal alignment
+            if argsLength == 4:
+                time_start = time.perf_counter()
+                print(prog_dyn(sys.argv[2], sys.argv[3]))
+                time_elapsed = (time.perf_counter() - time_start)
+
+                if resourceImported:
+                    memKb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0
+                    print("Time and memory used respectively : %5.1f secs %5.1f KBytes" % (time_elapsed,memKb))
+                else:
+                    print("Time taken: %5.1f secs" % (time_elapsed))
+            else:
+                print(usage(sys.argv[1]))
 
         else:
             print(usage())

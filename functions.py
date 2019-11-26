@@ -168,7 +168,6 @@ def sol_1(x, y, T): # question 16
     
     i = n-1
     j = m-1
-    print(T)
 
     while i > 0 or j > 0:
         if j > 0 and (T[i][j] == (T[i][j-1] + cins)):
