@@ -2,6 +2,7 @@ from scipy.special import binom
 from helper import *
 import sys
 import itertools
+import timeout_decorator
 import numpy as np
 
 def generateBar(sequence, kGaps, show = False):
@@ -130,7 +131,11 @@ def dist_1(x, y, wholeTable=False): # Question 12
     n, m = len(x), len(y)
 
     cdel = cins = 2
-    T = np.zeros((n, m), dtype=int)
+    try:
+        T = np.zeros((n, m), dtype=int)
+    except MemoryError:
+        print('Couldnot load this instance to RAM. Too large !')
+        return False
     
     for j in range(1, m):
         T[0, j] = j * cins
@@ -193,6 +198,7 @@ def sol_1(x, y, T): # question 16
     
     return (xBar, yBar)
 
+@timeout_decorator.timeout(600)
 def prog_dyn(x, y):
     '''
         @param: 
@@ -204,9 +210,19 @@ def prog_dyn(x, y):
     T = dist_1(x, y, wholeTable=True)
     #distance = T[-1][-1]
     #xBar, yBar = sol_1(x,y,T)
+        
 
-    return [T[-1][-1], sol_1(x,y,T)]
+    if T is not False:
+        return [T[-1][-1], sol_1(x,y,T)]
+    
 
 def prog_dyn_from_file(path):
     x,y = processFile(path)
-    return prog_dyn(x,y)
+    ans = prog_dyn(x,y)
+
+    if ans is not None:
+        return ans
+    
+    # if the caller is solver then catch memError there in order to add the error to log file
+    if sys._getframe().f_back.f_code.co_name == 'solver': 
+        raise MemoryError # fix this later 

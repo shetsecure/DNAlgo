@@ -62,7 +62,7 @@ def csub(x, y):
     else:
         return 4
 
-def usage():
+def usage(s=""):
     pass
 
 def processFile(path):
