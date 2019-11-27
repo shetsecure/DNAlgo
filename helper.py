@@ -55,7 +55,7 @@ def csub(x, y):
     # x and y are chars, this returns the cost of sub
     if x == y:
         return 0
-    if (x == 'A' and y == 'T') or (x == 'T' and y == 'A') or (x == 'G' and y == 'C') or (x == 'G' and y == 'C'):
+    if (x == 'A' and y == 'T') or (x == 'T' and y == 'A') or (x == 'G' and y == 'C') or (x == 'C' and y == 'G'):
         return 3
     if x == '−' or y == '−': # this case is added to get the implementation correct. (can be interpreted as cIns or cDel)
         return 2
