@@ -3,3 +3,5 @@
 *.png
 *.txt
 __pycache__/*
+plotValues/*
+.ipynb_checkpoints/*
