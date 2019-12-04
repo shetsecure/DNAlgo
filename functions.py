@@ -175,8 +175,8 @@ def sol_1(x, y, T): # question 16
     
     i = n-1
     j = m-1
-
-    while i > 0 or j > 0:
+    
+    while i > 0 or j > 0: # backtracking
         if j > 0 and (T[i][j] == (T[i][j-1] + cins)):
             # go left only
             xBar = "−" + xBar
@@ -238,7 +238,7 @@ def dist_2(x, y): # question 20, spacial complexity in O(m)
     n, m = len(x), len(y)
     cdel = cins = 2
 
-    first_col = [x for x in range(0, 2*m, 2)] # 2 is cins
+    first_col = [x for x in range(0, 2*m, 2)] # 2 is cins -> [0, 2, 4, ...]
     second_col = [0] * m
 
     for i in range(1, n):
