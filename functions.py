@@ -81,7 +81,6 @@ def generateAlignments(seq1, kGaps, seq2):
 
 ########################################### IMPLEMENTATIONS ###########################################
 
-
 def dist_naif_rec(x, y, i, j, c, dist):
     '''
         x et y deux mots,
@@ -110,7 +109,6 @@ def dist_naif_rec(x, y, i, j, c, dist):
             dist = dist_naif_rec(x, y, i, j+1, c + cins, dist)
             
     return dist
-
 
 def dist_naif(x, y):
     return dist_naif_rec(x, y, 0, 0, 0, sys.maxsize)
@@ -226,3 +224,152 @@ def prog_dyn_from_file(path):
     # if the caller is solver then catch memError there in order to add the error to log file
     if sys._getframe().f_back.f_code.co_name == 'solver': 
         raise MemoryError # fix this later 
+
+
+@timeout_decorator.timeout(600)
+def dist_2(x, y): # question 20, spacial complexity in O(m)
+    assert (isinstance(x, str) and isinstance(x, str))
+    x = x.replace(' ', '')
+    y = y.replace(' ', '')
+    
+    # adding empty string to both sequence to make indexing below simpler
+    x = ' ' + x
+    y = ' ' + y 
+    n, m = len(x), len(y)
+    cdel = cins = 2
+
+    first_col = [x for x in range(0, 2*m, 2)] # 2 is cins
+    second_col = [0] * m
+
+    for i in range(1, n):
+        second_col[0] = cdel * i
+
+        for j in range(1, m):
+            second_col[j] = min( first_col[j-1] + csub(x[i], y[j]), second_col[j-1] + cins, first_col[j] + cdel)
+
+        first_col = second_col
+        second_col = [0] * m
+
+    return first_col[-1]
+
+def dist_2_from_file(path):
+    s = processFile(path)
+    return dist_2(s[0], s[1])
+
+# question 21
+def mot_gaps(k):
+    assert(isinstance(k, int))
+    assert(k >= 0)
+
+    return ''.join('−' * k)
+
+# question 22
+def align_lettre_mot(x, y):
+    #assert(isinstance(x, str) and len(x) == 1)
+    assert(isinstance(x, str) and len(x) >= 0)
+    assert(isinstance(y, str) and len(y) > 0)
+    
+    cins = cdel = 2
+
+    u = ""
+    v = ""
+
+    minimum = sys.maxsize
+    pos = 0
+
+    if len(x) == 1:
+        for i in range(0, len(y)):
+            tmp = csub(x[0], y[i])
+            if tmp < cins + cdel and tmp < minimum:
+                pos = i
+                minimum = tmp
+
+        if minimum == sys.maxsize:
+            u = mot_gaps(len(y)) + x
+            v = y + '−'
+        else:
+            u = mot_gaps(pos) + x + mot_gaps(len(y) - 1 - pos)
+            v = y
+
+        return (u,v)
+    else:
+        for i in range(0, len(y)):
+            tmp = csub(x[i], y[0])
+            if tmp < cins + cdel and tmp < minimum:
+                pos = i
+                minimum = tmp
+
+        if minimum == sys.maxsize:
+            u = x + '−'
+            v = mot_gaps(len(y)) + y
+        else:
+            u = x
+            v = mot_gaps(pos) + y + mot_gaps(len(y) - 1 - pos)
+
+        return (u,v)
+
+
+# question 25
+def coupure(x, y):
+    n, m = len(x), len(y)
+    x = ' ' + x
+    y = ' ' + y
+
+    iEtoile = n/2
+    cins = cdel = 2
+
+    d1 = [0] * (m+1)
+    d2 = [0] * (m+1)
+    coup1 = [0] * (m+1) 
+    coup2 = [0] * (m+1)
+
+    for i in range(0, m+1):
+        d1[i] = i * cins
+        coup1[i] = i
+
+    
+    for i in range(1, n+1):
+        d2[0] = i * cdel
+
+        for k in range(1, m+1):
+            tmp = min(d2[k-1] +cins, d1[k] + cdel, d1[k-1] + csub(x[i], y[k]))
+            d2[k] = tmp
+
+            if i > iEtoile:
+                if tmp == (d2[k-1] + cins):
+                    coup2[k] = coup2[k-1]
+
+                else:
+                    if tmp == (d1[k] + cdel):
+                        coup2[k] = coup1[k]
+                    else:
+                        coup2[k] = coup1[k-1]
+
+        d1 = d2
+        d2 = [0] * (m+1)
+        
+        if i > iEtoile:
+            coup1 = coup2
+            coup2 = [0] * (m+1)
+
+    return int(coup1[m])
+
+# question 24
+@timeout_decorator.timeout(600)
+def sol_2(x, y):
+    n, m = len(x), len(y)
+    
+    if n == 0:
+        return (mot_gaps(m), y)
+    if m == 0:
+        return (x, mot_gaps(n))
+
+    if m == 1 or n == 1:
+        return align_lettre_mot(x,y)
+
+    j = coupure(x,y)
+    i = int(n/2)
+
+    x, y = sol_2(x[0:i], y[0:j]), sol_2(x[i:n], y[j:m])
+    
+    return (x[0]+y[0], x[1]+y[1])

@@ -1,4 +1,5 @@
 import random
+import os
 from os.path import isfile
 
 def toString(List): 
@@ -90,3 +91,11 @@ def processFile(path):
     except IOError:
         print('Need the privileges to read the file: ' + path)
         raise SystemExit
+
+def getInstancesFiles(directory, sort=False):
+    all_files = (os.path.join(basedir, filename) for basedir, dirs, files in os.walk(directory) for filename in files)
+
+    if sort:
+        return sorted(all_files, key = os.path.getsize)
+    else:
+        return all_files

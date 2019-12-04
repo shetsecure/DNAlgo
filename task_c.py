@@ -3,7 +3,7 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from functions import prog_dyn
+from functions import dist_2
 from helper import processFile, getInstancesFiles
 from timeout_decorator.timeout_decorator import TimeoutError
 
@@ -11,7 +11,7 @@ __DIR__ = 'Instances_genome/'
 
 def solve():
     path = ''
-    errorFile = open('errorLog_task_b.txt', 'w')
+    errorFile = open('errorLog_task_c.txt', 'w')
 
     # the following two lists will be used to plot the graph
     cpu_time = []
@@ -23,13 +23,13 @@ def solve():
 
     for f in sorted_files:
         path = f
-        print(path)
+        print(path + ' -> distance = ', end='')
         s1, s2 = processFile(path)
 
         time_start = time.perf_counter()
 
         try:
-            ans = prog_dyn(s1, s2)
+            ans = dist_2(s1, s2)
             i += 1
             print(ans)
         except MemoryError:
@@ -60,19 +60,16 @@ def solve():
     
     sns.set(style='darkgrid')
     sns.lineplot(x='|x|', y='time (s)', data=data)
-    plt.title('PROG_DYN: courbe de consommation de temps CPU en fonction de la taille |x|')
-    plt.savefig('task_b.png', dpi=300)
+    plt.title('DIST_2: courbe de consommation de temps CPU en fonction de la taille |x|')
+    plt.savefig('task_c.png', dpi=300)
     plt.show()
     
-    with open('plotted_values_task_b', 'a+') as f:
+    with open('plotted_values_task_c', 'a+') as f:
         f.write('\n')
         f.write(str(list(x)))
         f.write('\n')
         f.write(str(list(y)))
         f.write('\n\n')
 
-
 if __name__ == '__main__':
     solve()
-
-
