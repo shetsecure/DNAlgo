@@ -64,7 +64,7 @@ def solve():
     plt.savefig('task_d.png', dpi=300)
     plt.show()
     
-    with open('plotted_values_task_d', 'a+') as f:
+    with open('plotted_values_task_d.txt', 'a+') as f:
         f.write('\n')
         f.write(str(list(x)))
         f.write('\n')

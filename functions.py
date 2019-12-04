@@ -266,45 +266,40 @@ def mot_gaps(k):
 # question 22
 def align_lettre_mot(x, y):
     #assert(isinstance(x, str) and len(x) == 1)
-    assert(isinstance(x, str) and len(x) >= 0)
-    assert(isinstance(y, str) and len(y) > 0)
-    
-    cins = cdel = 2
-
-    u = ""
-    v = ""
-
+    cins = 2 
+    cdel = 2
+   
     minimum = sys.maxsize
     pos = 0
-
+    m = max(len(x), len(y))
     if len(x) == 1:
-        for i in range(0, len(y)):
+        for i in range(0, m):
             tmp = csub(x[0], y[i])
             if tmp < cins + cdel and tmp < minimum:
                 pos = i
                 minimum = tmp
 
         if minimum == sys.maxsize:
-            u = mot_gaps(len(y)) + x
-            v = y + '−'
+            u = mot_gaps(m) + x
+            v = y +  '−'
         else:
-            u = mot_gaps(pos) + x + mot_gaps(len(y) - 1 - pos)
+            u = mot_gaps(pos) + x + mot_gaps(m - 1 - pos)
             v = y
 
         return (u,v)
     else:
-        for i in range(0, len(y)):
+        for i in range(0, m):
             tmp = csub(x[i], y[0])
             if tmp < cins + cdel and tmp < minimum:
                 pos = i
                 minimum = tmp
 
         if minimum == sys.maxsize:
-            u = x + '−'
-            v = mot_gaps(len(y)) + y
+            u = x +  '−'
+            v = mot_gaps(m) + y
         else:
             u = x
-            v = mot_gaps(pos) + y + mot_gaps(len(y) - 1 - pos)
+            v = mot_gaps(pos) + y + mot_gaps(m - 1 - pos)
 
         return (u,v)
 
@@ -312,9 +307,6 @@ def align_lettre_mot(x, y):
 # question 25
 def coupure(x, y):
     n, m = len(x), len(y)
-    x = ' ' + x
-    y = ' ' + y
-
     iEtoile = n/2
     cins = cdel = 2
 
@@ -326,13 +318,11 @@ def coupure(x, y):
     for i in range(0, m+1):
         d1[i] = i * cins
         coup1[i] = i
-
-    
     for i in range(1, n+1):
         d2[0] = i * cdel
 
         for k in range(1, m+1):
-            tmp = min(d2[k-1] +cins, d1[k] + cdel, d1[k-1] + csub(x[i], y[k]))
+            tmp = min(d2[k-1] +cins, d1[k] + cdel, d1[k-1] + csub(x[i - 1], y[k - 1]))
             d2[k] = tmp
 
             if i > iEtoile:
@@ -343,13 +333,14 @@ def coupure(x, y):
                     if tmp == (d1[k] + cdel):
                         coup2[k] = coup1[k]
                     else:
-                        coup2[k] = coup1[k-1]
+                        if tmp == d1[k - 1] + csub(x[i-1],y[k-1]) :
+                            coup2[k] = coup1[k-1]
 
-        d1 = d2
+        d1 = d2[:]
         d2 = [0] * (m+1)
         
         if i > iEtoile:
-            coup1 = coup2
+            coup1 = coup2[:]
             coup2 = [0] * (m+1)
 
     return int(coup1[m])

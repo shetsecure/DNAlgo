@@ -2,6 +2,7 @@
 *.pyc
 *.png
 *.txt
+*.swo
 __pycache__/*
 plotValues/*
 .ipynb_checkpoints/*
