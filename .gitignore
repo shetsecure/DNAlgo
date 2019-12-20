@@ -3,6 +3,8 @@
 *.png
 *.txt
 *.swo
+test.py
+t.py
 __pycache__/*
 plotValues/*
 .ipynb_checkpoints/*
